@@ -4,8 +4,8 @@
 
 using namespace std;
 
-/* Created by Gavin Whitehall (GW) - 22/05/2014 */
-/// Current Functionality :: Reads the file line by line and outputs it.
+/* Created by Gavin Whitehall (GW) - 22/05/2014. Last Modified by Gavin Whitehall (GW) - 23/05/2014 */
+/// Current Functionality :: Reads the file line by line, converting the numbers into doubles and storing them in a 2D array and outputs it for test purposes.
 
 int filesize (string dir)
 {
@@ -64,33 +64,51 @@ int main ()
 	cout << "Number Length: " << num_Length << " Characters.\n";
 	cout << "Total Rows: " << num_Rows << ".\n";
 
-	string* numbers = new string[num_PopulatedRows];		//Temp array for test - GW
+	double** numbers = new double*[num_PopulatedRows];		//Array of pointers to arrays, this will hold all the numbers - GW
+
+	/* Populate the pointers array with doubles */
+	for (int i = 0; i < num_PopulatedRows; ++i)
+	{
+		numbers[i] = new double[num_Columns];
+	}
 
 	/* Check the file is open */
 	if (file.is_open())
 	{
 		cout << "File Contents:" << '\n';
-		file.seekg(spacing);		//Set the start position past the first spacing - GW
-		int i = 0;					//Counter variable - GW
+
+		file.seekg(spacing);			//Set the start position past the first spacing - GW
+		int i = 0;						//Counter variable - GW
 		
 		/* Iterate while there is a line to read - GW */
 		while (getline(file, text))
 		{
+			/* Split text into 2 strings using the spacing and convert into a double - GW */
+
 			int pos = file.tellg();		//Get the current position - GW
 			file.seekg(pos+spacing);	//Set the positon to the current position plus the spacing - GW
+						
+			string delimiter = "  ";	//As two spaces are used to separate the numbers set the delimiter to this - GW
+			size_t delimPos = 0;		//The position in the string of the delimiter - GW
 
-			//split text into 2 strings using the spacing
-			//for both strings split them using E and convert into floats from sci-notation
-			//add to array of numbers
+			/* Check if the delimiter is in the string - GW */
+			if(text.find(delimiter) != string::npos)
+			{
+				delimPos = text.find(delimiter);	//Set the position to position of the delimiter - GW
+			}
 
-			numbers[i] = text;		//Temporary variable for testing - GW
-			i++;					//iterate once per loop - GW
+			numbers[i][0] = atof((text.substr(0, delimPos)).c_str());				//Convert the real number to a double and store in the first position in the array - GW
+			numbers[i][1] = atof((text.erase(0, delimPos + spacing)).c_str());		//Convert the imaginary number to a double and store in the second position in the array - GW
+			
+			i++;		//iterate once per loop - GW
 		} 
 
-		/* Test Array - GW */
+		/* Testing the Array - GW */
 		for(int x=0; x < num_PopulatedRows ; x++)
 		{
-			cout << numbers[x] << '\n';
+			cout.precision(7);
+			cout << scientific;
+			cout << numbers[x][0] << ", " << numbers[x][1] << std::endl;
 		}
 		
 		file.close();	//When it's finished close the file - GW
