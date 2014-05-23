@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <complex>
 
 using namespace std;
 
@@ -65,6 +66,8 @@ int main ()
 	cout << "Total Rows: " << num_Rows << ".\n";
 
 	double** numbers = new double*[num_PopulatedRows];		//Array of pointers to arrays, this will hold all the numbers - GW
+	complex<double>* numberTest = new complex<double>[num_PopulatedRows];
+
 
 	/* Populate the pointers array with doubles */
 	for (int i = 0; i < num_PopulatedRows; ++i)
@@ -97,18 +100,13 @@ int main ()
 				delimPos = text.find(delimiter);	//Set the position to position of the delimiter - GW
 			}
 
-			numbers[i][0] = atof((text.substr(0, delimPos)).c_str());				//Convert the real number to a double and store in the first position in the array - GW
-			numbers[i][1] = atof((text.erase(0, delimPos + spacing)).c_str());		//Convert the imaginary number to a double and store in the second position in the array - GW
-			
-			i++;		//iterate once per loop - GW
-		} 
+			double real = atof((text.substr(0, delimPos)).c_str());					//Variable to hold real number - GW
+			double imaginary = atof((text.erase(0, delimPos + spacing)).c_str());	//Variable to hold imaginary number - GW
+			complex<double> tempComplex (real,imaginary);							//Create a temporary complex double - GW
 
-		/* Testing the Array - GW */
-		for(int x=0; x < num_PopulatedRows ; x++)
-		{
-			cout.precision(7);
-			cout << scientific;
-			cout << numbers[x][0] << ", " << numbers[x][1] << std::endl;
+			numberTest[i] = tempComplex;											//Assign the temp complex double to the array - GW
+	
+			i++;		//iterate once per loop - GW
 		}
 		
 		file.close();	//When it's finished close the file - GW
@@ -118,7 +116,14 @@ int main ()
 		/* Output error message otherwise - GW */
 		cout << "Error: Unable to open file";
 	}
-	
+
+	/* Testing the Array - GW */
+	for(int i = 0; i < num_PopulatedRows ; ++i)
+	{
+		cout.precision(7);
+		cout << scientific;
+		cout << numberTest[i] << endl;
+	}
 
 	system("pause");		//Modified: Correct Implementation to keep output open upon run - GW
 	return 0;
