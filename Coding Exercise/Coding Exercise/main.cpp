@@ -6,7 +6,7 @@
 using namespace std;
 
 /* Created by Gavin Whitehall (GW) - 22/05/2014. Last Modified by Gavin Whitehall (GW) - 23/05/2014 */
-/// Current Functionality :: Reads the file line by line, converting the numbers into doubles and storing them in a 2D array and outputs it for test purposes.
+/// Current Functionality :: Reads the file line by line, converting the numbers and storing them in as complex, calculates the amplitude and phase and then outputs to a file.
 
 int filesize (string dir)
 {
