@@ -66,7 +66,7 @@ int main ()
 
 	int num_Length = ((size_File/num_Rows+1) - spacing*2)/num_Columns;	//The calculated character size of the numbers (total size over total rows, remove spacing, over total columns) - GW
 
-	complex<double>* numberTest = new complex<double>[num_PopulatedRows];	//Array to store complex numbers - GW
+	complex<double>* inputNumbers = new complex<double>[num_PopulatedRows];	//Array to store complex numbers - GW
 
 	/* Check the file is open */
 	if (input.is_open())
@@ -100,7 +100,7 @@ int main ()
 			double imaginary = atof((text.erase(0, delimPos + spacing)).c_str());	//Variable to hold imaginary number - GW
 			complex<double> tempComplex (real,imaginary);							//Create a temporary complex double - GW
 
-			numberTest[i] = tempComplex;			//Assign the temp complex double to the array - GW
+			inputNumbers[i] = tempComplex;			//Assign the temp complex double to the array - GW
 	
 			i++;		//iterate once per loop - GW
 		}
@@ -122,9 +122,9 @@ int main ()
 			output.precision(7);			//Set the floating-point precision of the numbers to 7 - GW
 			output << scientific			//Numbers will be represented in scientific form - GW
 			<< delimiter					//First add the delimter - GW
-			<< abs(numberTest[i])			//Then the Amplitude in column 1 - GW
+			<< abs(inputNumbers[i])			//Then the Amplitude in column 1 - GW
 			<< delimiter					//Then the second delimter to seperate the columns - GW
-			<< arg(numberTest[i]) << "\n";	//Finally add the Phase to column 2 and take a new line - GW
+			<< arg(inputNumbers[i]) << "\n";	//Finally add the Phase to column 2 and take a new line - GW
 		}
 		output.close();		//When it's finished close the file - GW
 		cout << "Output File Created: " << "'" << outputFile << "'" << endl;	//Output information for the user - GW
