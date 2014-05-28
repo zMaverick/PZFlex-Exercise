@@ -5,8 +5,8 @@
 
 using namespace std;
 
-/* Created by Gavin Whitehall (GW) - 22/05/2014. Last Modified by Gavin Whitehall (GW) - 23/05/2014 */
-/// Current Functionality :: Reads the file line by line, converting the numbers and storing them in as complex, calculates the amplitude and phase and then outputs to a file.
+/* Created by Gavin Whitehall (GW) - 22/05/2014. Last Modified by Gavin Whitehall (GW) - 28/05/2014 */
+/// Current Functionality :: Extracts each number using ifstream operator (2 extracts per iteration), stores in temporary complex<double> then calculates the amplitude and phase and outputs to a file.
 
 int filesize (string dir)
 {
@@ -44,8 +44,6 @@ int rowcount (string dir)
 
 int main ()
 {
-	string text;								//Temp string for holding lines from the file read - GW
-
 	string filedir = "";						//Use this for an external directory location	- GW
 	string inputName = "reimadmt.dat";			//Name of the input file	- GW
 	string outputname = "output.dat";			//Name of the output file	- GW
@@ -54,19 +52,13 @@ int main ()
 	string outputFile = filedir+outputname;		//Full Directory of the output file - GW
 	
 	ifstream input (inputFile);					//Open the file with the full directory - GW
-	ofstream output;							//Variable for the output class - GW
+	ofstream output(outputFile);				//Create and open the output file with the full directory - GW
 
 	int num_Columns = 2;						//As there are 2 columns (real/imaginary) - GW
-	int spacing = 2;							//The spacing-size between each column - GW
 	string delimiter = "  ";					//As two spaces are used to separate the columns set the delimiter to this - GW
 	
-	int size_File = filesize(inputFile);		//Total size of the file - GW
-	int num_Rows = rowcount(inputFile) + 1;		//The number of rows in the file (Extra row is hard-added due to an empty row at the bottom of which is being skipped) - GW
-	int num_PopulatedRows = num_Rows - 1;		//The number of populated rows in the file - GW
-
-	int num_Length = ((size_File/num_Rows+1) - spacing*2)/num_Columns;	//The calculated character size of the numbers (total size over total rows, remove spacing, over total columns) - GW
-
-	complex<double>* inputNumbers = new complex<double>[num_PopulatedRows];	//Array to store complex numbers - GW
+	int size_File = filesize(inputFile);		//(Optional) Total size of the file - GW
+	int num_Rows = rowcount(inputFile) + 1;		//(Optional) The number of rows in the file (Extra row is hard-added due to an empty row at the bottom of which is being skipped) - GW
 
 	/* Check the file is open */
 	if (input.is_open())
@@ -77,34 +69,44 @@ int main ()
 			<< size_File << " Characters" << endl
 			<< num_Rows << " Rows" << endl;
 
-		input.seekg(spacing);			//Set the start position past the first spacing - GW
-		int i = 0;						//Counter variable - GW
-		
-		/* Iterate while there is a line to read - GW */
-		while (getline(input, text))
+		/* Check the file is open */
+		if (output.is_open())
 		{
-			/* Split text into 2 strings using the spacing and convert into a double - GW */
-
-			int pos = input.tellg();		//Get the current position - GW
-			input.seekg(pos+spacing);	//Set the positon to the current position plus the spacing - GW
-						
-			size_t delimPos = 0;		//The position in the string of the delimiter - GW
-
-			/* Check if the delimiter is in the string - GW */
-			if(text.find(delimiter) != string::npos)
+			/* Runs indefinitely (until the break) - GW */
+			while(true)
 			{
-				delimPos = text.find(delimiter);	//Set the position to position of the delimiter - GW
+				double real;			//Variable to hold real number - GW
+				double imaginary;		//Variable to hold imaginary number - GW
+
+				input >> real;			//Extract the first number into variable - GW
+				input >> imaginary;		//Extract the second number into variable - GW
+
+				if(input.eof())
+				{
+					break;				//Ends the statement when the file end is reached - GW
+				}
+
+				complex<double> complexNum (real, imaginary);		//Create a complex double from inputted real/imaginary numbers - GW
+
+				output.precision(7);			//Set the floating-point precision of the numbers to 7 - GW
+				output << scientific			//Numbers will be represented in scientific form - GW
+				<< delimiter					//First add the delimter - GW
+				<< abs(complexNum)				//Then the Amplitude in column 1 - GW
+				<< delimiter					//Then the second delimter to seperate the columns - GW
+				<< arg(complexNum) << "\n";		//Finally add the Phase to column 2 and take a new line - GW
 			}
 
-			double real = atof((text.substr(0, delimPos)).c_str());					//Variable to hold real number - GW
-			double imaginary = atof((text.erase(0, delimPos + spacing)).c_str());	//Variable to hold imaginary number - GW
-			complex<double> tempComplex (real,imaginary);							//Create a temporary complex double - GW
-
-			inputNumbers[i] = tempComplex;			//Assign the temp complex double to the array - GW
-	
-			i++;		//iterate once per loop - GW
+			output.close();		//When it's finished close the file - GW
 		}
+		else
+		{
+			/* Output error message otherwise - GW */
+			cout << "Error: Failed to create file" << endl;
+		}
+
 		input.close();	//When it's finished close the file - GW
+
+		cout << "Output File Created: " << "'" << outputFile << "'" << endl;	//Output information for the user - GW	
 	}
 	else
 	{
@@ -112,30 +114,6 @@ int main ()
 		cout << "Error: Failed to open file. Check the directory.";
 	}
 
-	output.open(outputFile);		//Create the output file with the full directory - GW
-
-	if (output.is_open())
-	{
-		/* Outputting the Array - GW */
-		for(int i = 0; i < num_PopulatedRows ; ++i)
-		{
-			output.precision(7);			//Set the floating-point precision of the numbers to 7 - GW
-			output << scientific			//Numbers will be represented in scientific form - GW
-			<< delimiter					//First add the delimter - GW
-			<< abs(inputNumbers[i])			//Then the Amplitude in column 1 - GW
-			<< delimiter					//Then the second delimter to seperate the columns - GW
-			<< arg(inputNumbers[i]) << "\n";	//Finally add the Phase to column 2 and take a new line - GW
-		}
-		output.close();		//When it's finished close the file - GW
-		cout << "Output File Created: " << "'" << outputFile << "'" << endl;	//Output information for the user - GW
-	}
-	else
-	{
-		/* Output error message otherwise - GW */
-		cout << "Error: Failed to create file" << endl;
-	}
-
-	system("pause");		//Correct Implementation to keep output open upon run - GW
+	system("pause");		//To keep output open upon run - GW
 	return 0;
-	
 }
